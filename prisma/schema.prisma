@@ -32,6 +32,13 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model UserRegister { 
+   id            String          @id @default(uuid()) @map("_id") @db.Uuid
+   userName      String  @unique
+   password      String? 
+   email         String?
+}
+
 model Account {
   id                String  @id @default(uuid()) @map("_id") @db.Uuid
   userId            String  @db.Uuid

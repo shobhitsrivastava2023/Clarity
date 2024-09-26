@@ -26,7 +26,7 @@ const Postbox = () => {
        </div>
        <div className='w-full  h-24'>
         <div className='float-right h-full mr-14'>
-          <div className='h-12  '>
+          <div className='h-12'>
           <Dialog>
       <DialogTrigger asChild>
       <button>

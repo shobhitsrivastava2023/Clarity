@@ -14,6 +14,18 @@ const formSchema = z.object({
     username: z.string().min(2, {
       message: "Username must be at least 2 characters.",
     }),
+    password : z.string().min(4,{
+      message: "password should be more than 4 words"
+    }),
+    confirmPassword : z.string().min(4, {
+       message: "password should be more than 4 words"
+    }),
+    email : z.string().email({
+      message : " invalid email you have entered sir. "
+    })
+  }).refine((data) => data.password === data.confirmPassword, {
+    path: ['confirmPassword'], // Specify where the error should be displayed
+    message: "Passwords do not match.",
   })
     
        
@@ -24,13 +36,47 @@ const formSchema = z.object({
         resolver: zodResolver(formSchema),
         defaultValues: {
           username: "",
+          password: "",
+          confirmPassword: "",
+          email: "", 
         },
       })
 
-      function onSubmit(values: z.infer<typeof formSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+      async function  onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+          const response = await fetch('/api/RegisterUser', {
+          method: 'POST', 
+          headers: { 
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+           username : values.username,
+           email : values.email,
+           password : values.email, 
+          })
+        })
+         if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error:", errorData.errors || errorData.error);
+            // Handle the error as needed (e.g., display error messages)
+            return;
+          }
+
+          const userData = await response.json();
+      console.log("User registered:", userData);
+          }
+
+          catch (error) {
+            console.error("Unexpected error:", error);
+            // Handle unexpected errors
+          }
+
+         
+        
+
+
+      
+       
       }
     
 
@@ -39,7 +85,9 @@ const formSchema = z.object({
   return (
     <div className='flex flex-row justify-center items-center h-dvh'>
     <div className=' w-80  h-96'>
-       
+    <h1  className='text-white text-3xl mb-4'>
+          Signup To Clarity
+        </h1>
        <Form {...form} >
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 text-white">
         <FormField
@@ -58,7 +106,51 @@ const formSchema = z.object({
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="thisisyou@13.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input placeholder="Your password" type='password' {...field} />
+              </FormControl>
+              
+              <FormMessage />
+            </FormItem>
+          )}
+        />   
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Re-Password</FormLabel>
+              <FormControl>
+                <Input placeholder="Re-enter the password" type='password' {...field} />
+              </FormControl>
+              
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className=' hover:bg-green-500 w-full'>Submit</Button>
       </form>
     </Form>
 
