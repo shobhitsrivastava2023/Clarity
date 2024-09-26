@@ -34,9 +34,9 @@ model User {
 
 model UserRegister { 
    id            String          @id @default(uuid()) @map("_id") @db.Uuid
-   userName      String  @unique
+   userName      String          @unique
    password      String? 
-   email         String?
+   email         String?         @unique
 }
 
 model Account {

@@ -11,21 +11,12 @@ const register = () => {
   const router = useRouter(); 
     
 const formSchema = z.object({
-    username: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
-    }),
     password : z.string().min(4,{
       message: "password should be more than 4 words"
-    }),
-    confirmPassword : z.string().min(4, {
-       message: "password should be more than 4 words"
     }),
     email : z.string().email({
       message : " invalid email you have entered sir. "
     })
-  }).refine((data) => data.password === data.confirmPassword, {
-    path: ['confirmPassword'], // Specify where the error should be displayed
-    message: "Passwords do not match.",
   })
     
        
@@ -35,22 +26,20 @@ const formSchema = z.object({
       const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-          username: "",
           password: "",
-          confirmPassword: "",
           email: "", 
         },
       })
 
       async function  onSubmit(values: z.infer<typeof formSchema>) {
+        console.log(values);
         try {
-          const response = await fetch('/api/RegisterUser', {
+          const response = await fetch('/api/loginUser', {
           method: 'POST', 
           headers: { 
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ 
-           username : values.username,
            email : values.email,
            password : values.email, 
           })
@@ -86,29 +75,12 @@ const formSchema = z.object({
 
   return (<>
   <div className='text-white  text-center mt-24'> 
-    <h1 className='text-3xl font-semibold'> Sign Up to Clarity </h1>
+    <h1 className='text-3xl font-semibold'> Login to Clarity </h1>
   </div>
     <div className='flex flex-row justify-center items-center mt-12'>
     <div className=' w-80  h-96'>
        <Form {...form} >
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 text-white">
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 text-white">        
         <FormField
           control={form.control}
           name="email"
@@ -124,6 +96,7 @@ const formSchema = z.object({
         />
 
         
+       
         <FormField
           control={form.control}
           name="password"
@@ -131,24 +104,10 @@ const formSchema = z.object({
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="Your password" type='password' {...field} />
-              </FormControl>
-              
-              <FormMessage />
-            </FormItem>
-          )}
-        />   
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Re-Password</FormLabel>
-              <FormControl>
-                <Input placeholder="Re-enter the password" type='password' {...field} />
+                <Input placeholder="enter the password" type='password' {...field} />
               </FormControl>
               <FormDescription>
-              <a href="/login" className='text-white hover:text-blue-500'> have an account already ? </a>
+              <a href="/register" className='text-white hover:text-blue-500'> Don't have an account already ? </a>
               </FormDescription>
               <FormMessage />
             </FormItem>

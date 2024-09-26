@@ -1,37 +1,42 @@
 import NextAuth from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials" // Import credentials provider
-
-export const { handlers, signIn, signOut, auth } = NextAuth({
+import Credentials from "next-auth/providers/credentials"
+// Your own logic for dealing with plaintext password strings; be careful!
+import { verifyPassword } from "./utils/password"
+ import { prisma } from "@/db/prisma"
+import { isValid } from "zod"
+import { verify } from "crypto"
+import credentials from "next-auth/providers/credentials"
+export const { handlers, signIn,  signOut, auth } = NextAuth({
   providers: [
-    GoogleProvider({  
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-    
-    CredentialsProvider({
-      name: "Credentials",
+    Credentials({
+      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
+      // e.g. domain, username, password, 2FA token, etc.
       credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
+        email: {label: "email", type: "text"},
+        password: {label: "Password", type: "text"},
       },
-      async authorize(credentials) {
-        const { email, password } = credentials
+      authorize: async (credentials) => {
+      
+        if(!credentials?.email || !credentials?.password){
+          throw new Error ("missing password or email"); 
+        }
+        const user = await prisma?.userRegister.findUnique({
+          where : {email: credentials.email as string}
 
-        // Logic to salt and hash the password
-        const pwHash = saltAndHashPassword(password)
+        });
+        
+        if(!user){
+          throw new Error("doesnt exist"); 
 
-        // Logic to verify if the user exists in the database
-        const user = await getUserFromDb(email, pwHash)
-
-        if (!user) {
-          // If no user found, throw an error (can also handle registration here)
-          throw new Error("User not found.")
         }
 
-        // Return user object with their profile data
-        return user
+        return {id: user?.id, email:user?.email}     
       },
     }),
   ],
+  session: {
+    strategy: "jwt"
+  }, 
+  secret : process.env.AUTH_SECRET,
 })
+
