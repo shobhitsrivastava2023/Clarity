@@ -30,7 +30,7 @@ const Postbox = () => {
           <Dialog>
       <DialogTrigger asChild>
       <button>
-                    <CiCirclePlus size={60} />
+                    <CiCirclePlus size={50} />
                   </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md text-white">
